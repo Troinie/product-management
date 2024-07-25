@@ -43,9 +43,22 @@ module.exports.index = async (req, res) => {
         countProducts
     );
 
-    const products = await Product.find(find).sort({
-        position: "desc"
-    }).limit(objectPagination.limitItem).skip(objectPagination.skip);
+
+    // sort
+
+    let sort = {};
+
+    if (req.query.sortKey && req.query.sortValue) {
+        sort[req.query.sortKey] = req.query.sortValue;
+    } else {
+        sort.position = "desc";
+    }
+
+
+    const products = await Product.find(find)
+        .sort(sort)
+        .limit(objectPagination.limitItem)
+        .skip(objectPagination.skip);
 
     // console.log(products);
 
@@ -192,10 +205,6 @@ module.exports.createPost = async (req, res) => {
         req.body.position = parseInt(req.body.position);
     }
 
-    if (req.file) {
-        req.body.thumbnail = `/uploads/${req.file.filename}`;
-    }
-
     const product = new Product(req.body);
     await product.save();
 
@@ -228,7 +237,7 @@ module.exports.edit = async (req, res) => {
 // [PATCH] /admin/products/edit/:id
 
 module.exports.editPatch = async (req, res) => {
-    const id=req.params.id;
+    const id = req.params.id;
 
     req.body.price = parseInt(req.body.price);
     req.body.discountPercentage = parseInt(req.body.discountPercentage);
@@ -240,7 +249,9 @@ module.exports.editPatch = async (req, res) => {
     }
 
     try {
-        const product = Product.updateOne({ _id: id }, req.body);
+        const product = Product.updateOne({
+            _id: id
+        }, req.body);
         req.flash("success", `Cập nhật thành công!`);
     } catch (error) {
         req.flash("error", `Cập nhật thất bại!`);
@@ -267,6 +278,6 @@ module.exports.detail = async (req, res) => {
         });
     } catch (error) {
         res.redirect(`${systemConfig.prefixAdmin}/products`);
-    } 
+    }
 
 }

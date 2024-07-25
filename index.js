@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const cookieParser = require("cookie-parser");
@@ -38,6 +39,11 @@ app.use(session({
     }
 }));
 app.use(flash());
+
+
+// tinyMCE
+
+app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce')));
 
 
 // app locals variables: tạo biến toàn cục
